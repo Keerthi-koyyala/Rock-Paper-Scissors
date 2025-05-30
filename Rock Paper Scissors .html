@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rock Paper Scissors</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      margin: 0;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      max-width: 600px;
+      padding: 30px;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    }
+
+    .name-input input {
+      padding: 10px;
+      border-radius: 10px;
+      border: none;
+      margin-right: 10px;
+      font-size: 16px;
+    }
+
+    .name-input button {
+      padding: 10px 20px;
+      border: none;
+      background-color: #ff9800;
+      color: white;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.3s ease;
+    }
+
+    .name-input button:hover {
+      transform: scale(1.05);
+      background-color: #e68900;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .choices {
+      margin-top: 20px;
+    }
+
+    .choice-btn {
+      font-size: 18px;
+      margin: 10px;
+      padding: 15px 25px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 15px;
+      cursor: pointer;
+      transform: perspective(1px) translateZ(0);
+      transition: transform 0.3s ease;
+    }
+
+    .choice-btn:hover {
+      transform: scale(1.1) rotateX(10deg);
+      background-color: #388e3c;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    .score-board {
+      font-size: 20px;
+      margin-top: 15px;
+    }
+
+    #final-message {
+      font-size: 22px;
+      margin-top: 30px;
+      font-weight: bold;
+      color: #ffeb3b;
+    }
+
+    .play-again {
+      margin-top: 20px;
+    }
+
+    .play-again button {
+      padding: 10px 25px;
+      background-color: #03a9f4;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .play-again button:hover {
+      background-color: #0288d1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Rock Paper Scissors</h1>
+
+    <div class="name-input">
+      <input type="text" id="player-name" placeholder="Enter your name" />
+      <button onclick="startGame()">Start Game</button>
+    </div>
+
+    <div id="game" class="hidden">
+      <h2 id="greeting"></h2>
+
+      <div class="score-board">
+        <p id="score">Score - <span id="name-label">You</span>: 0 | Computer: 0</p>
+      </div>
+
+      <div class="choices">
+        <button class="choice-btn" onclick="play('rock')">🪨 Rock</button>
+        <button class="choice-btn" onclick="play('paper')">📄 Paper</button>
+        <button class="choice-btn" onclick="play('scissors')">✂️ Scissors</button>
+      </div>
+
+      <div id="result">
+        <p id="player-choice">You chose: -</p>
+        <p id="computer-choice">Computer chose: -</p>
+        <h2 id="winner">Result: -</h2>
+      </div>
+
+      <div id="final-message"></div>
+
+      <div class="play-again hidden">
+        <button onclick="resetGame()">🔁 Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sounds -->
+  <audio id="sound-click" src="https://www.soundjay.com/buttons/sounds/button-29.mp3"></audio>
+  <audio id="sound-win" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
+  <audio id="sound-lose" src="https://www.soundjay.com/button/beep-10.mp3"></audio>
+  <audio id="sound-draw" src="https://www.soundjay.com/button/button-20.mp3"></audio>
+
+  <script>
+    let playerName = "";
+    let playerScore = 0;
+    let computerScore = 0;
+    const winScore = 5;
+
+    function playSound(id) {
+      document.getElementById(id).play();
+    }
+
+    function startGame() {
+      const nameInput = document.getElementById("player-name").value.trim();
+      if (!nameInput) {
+        alert("Please enter your name!");
+        return;
+      }
+      playerName = nameInput;
+      document.getElementById("game").classList.remove("hidden");
+      document.querySelector(".name-input").classList.add("hidden");
+      document.getElementById("greeting").textContent = `Hello, ${playerName}! First to ${winScore} wins.`;
+      document.getElementById("name-label").textContent = playerName;
+      updateScore();
+    }
+
+    function play(playerChoice) {
+      if (playerScore >= winScore || computerScore >= winScore) return;
+
+      playSound('sound-click');
+
+      const choices = ['rock', 'paper', 'scissors'];
+      const computerChoice = choices[Math.floor(Math.random() * 3)];
+
+      document.getElementById('player-choice').textContent = `You chose: ${playerChoice}`;
+      document.getElementById('computer-choice').textContent = `Computer chose: ${computerChoice}`;
+
+      let result = '';
+
+      if (playerChoice === computerChoice) {
+        result = "It's a Draw!";
+        playSound('sound-draw');
+      } else if (
+        (playerChoice === 'rock' && computerChoice === 'scissors') ||
+        (playerChoice === 'paper' && computerChoice === 'rock') ||
+        (playerChoice === 'scissors' && computerChoice === 'paper')
+      ) {
+        result = "You Win!";
+        playerScore++;
+        playSound('sound-win');
+      } else {
+        result = "Computer Wins!";
+        computerScore++;
+        playSound('sound-lose');
+      }
+
+      document.getElementById('winner').textContent = `Result: ${result}`;
+      updateScore();
+
+      if (playerScore === winScore || computerScore === winScore) {
+        showFinalResult();
+      }
+    }
+
+    function updateScore() {
+      document.getElementById('score').innerHTML = `Score - <span id="name-label">${playerName}</span>: ${playerScore} | Computer: ${computerScore}`;
+    }
+
+    function showFinalResult() {
+      const finalMessage = document.getElementById('final-message');
+      if (playerScore === winScore) {
+        finalMessage.textContent = `🎉 Congratulations ${playerName}, You Won the Game!`;
+      } else {
+        finalMessage.textContent = `😔 Sorry ${playerName}, the Computer Won the Game.`;
+      }
+
+      document.querySelectorAll(".choice-btn").forEach(btn => btn.disabled = true);
+      document.querySelector(".play-again").classList.remove("hidden");
+    }
+
+    function resetGame() {
+      playerScore = 0;
+      computerScore = 0;
+      document.getElementById('final-message').textContent = '';
+      document.getElementById('player-choice').textContent = 'You chose: -';
+      document.getElementById('computer-choice').textContent = 'Computer chose: -';
+      document.getElementById('winner').textContent = 'Result: -';
+      document.querySelector(".play-again").classList.add("hidden");
+      document.querySelectorAll(".choice-btn").forEach(btn => btn.disabled = false);
+      updateScore();
+    }
+  </script>
+</body>
+</html>
